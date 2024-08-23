@@ -65,3 +65,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+@font-face {
+  font-family: 'Moon';
+  src: url('/fonts/moon-bold.otf');
+  src: url('/fonts/moon-light.otf');
+  font-weight: 400, 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Muli';
+  src: url('/fonts/Muli-Bold.ttf');
+  src: url('/fonts/Muli-Light.ttf');
+  src: url('/fonts/Muli-Regular.ttf');
+  font-weight: 500, 400, 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Moon';
+  font-weight: 300;
+}
+
+p {
+  font-family: 'Muli';
+}
