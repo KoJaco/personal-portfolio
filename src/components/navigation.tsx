@@ -12,8 +12,9 @@ import {
   Send,
 } from 'lucide-react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
 import { CustomButton } from './ui/button'
+
+import { usePathname } from 'next/navigation'
 
 const navItems = [
   { title: 'home', href: '/', icon: <House className="h-4 w-4" /> },
@@ -28,9 +29,10 @@ const navItems = [
 
 export const DesktopNavigation = () => {
   // TODO: Update transition timing function
-  const [isHovered, setIsHovered] = useState(false)
   const [isIconsOnly, setIsIconsOnly] = useState(false)
   const [isMini, setIsMini] = useState(false)
+
+  const pathname = usePathname()
 
   return (
     <div
@@ -44,10 +46,10 @@ export const DesktopNavigation = () => {
         <CustomButton
           variant="ghost"
           size="icon"
+          title="Toggle Open Menu"
           className="group/maximize text-primary/90 hover:text-primary flex w-auto items-center justify-between gap-x-8 px-2 hover:bg-white/10"
           onClick={() => setIsMini(!isMini)}
         >
-          Menu
           <Maximize className="h-4 w-4 group-hover/maximize:text-sky-300" />
         </CustomButton>
       ) : (
@@ -66,14 +68,16 @@ export const DesktopNavigation = () => {
                     className={clsx(
                       'text-primary/90 hover:text-primary flex w-full items-center justify-between gap-x-8 rounded-md py-0.5 capitalize transition-colors duration-300 hover:bg-white/10',
                       isIconsOnly ? 'px-1' : 'px-2',
+                      pathname === item.href && 'bg-white/5',
                     )}
                   >
                     {!isIconsOnly && <span>{item.title}</span>}
 
                     <span
                       className={clsx(
-                        'text-muted-foreground transition-transform duration-300 group-hover:scale-105 group-hover:text-sky-300',
+                        'text-muted-foreground transition-all duration-300 group-hover:scale-105 group-hover:text-sky-300',
                         isIconsOnly ? 'mx-auto' : '',
+                        pathname === item.href && 'text-sky-300/50',
                       )}
                     >
                       {item.icon}
@@ -93,7 +97,12 @@ export const DesktopNavigation = () => {
               onClick={() => setIsIconsOnly(!isIconsOnly)}
             >
               <ArrowLeftToLine
-                className={clsx('h-4 w-4', isIconsOnly ? 'rotate-180' : '')}
+                className={clsx(
+                  'h-4 w-4',
+                  isIconsOnly
+                    ? 'text-muted-foreground rotate-180 hover:text-sky-300'
+                    : '',
+                )}
               />
             </CustomButton>
 
@@ -113,8 +122,4 @@ export const DesktopNavigation = () => {
       )}
     </div>
   )
-}
-
-export const MobileNavigation = () => {
-  return <div>Mobile Navigation</div>
 }
