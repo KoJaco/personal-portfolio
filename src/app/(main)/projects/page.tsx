@@ -70,31 +70,54 @@ const projectsData = [
 
 const ProjectPage = () => {
   return (
-    <ScrollArea className="flex h-full w-full pb-24 pt-16">
-      {/* sidebar filters */}
-
-      <div className="mt-24 flex h-full w-full flex-col">
-        <div className="flex h-full w-full gap-x-32">
-          <header className="mx-auto space-y-2">
-            <h1 className="text-primary text-2xl font-light tracking-wide">
-              Projects
-            </h1>
-            <p className="text-muted-foreground max-w-xl">
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-              Similique voluptatibus commodi mollitia maxime facilis deleniti
-              labore consectetur! Quidem ratione sunt vel ipsam odio
-              voluptatibus architecto doloremque? Iusto animi saepe repudiandae!
-            </p>
-          </header>
-        </div>
-
-        <Separator className="mx-auto mt-8 w-full max-w-xl" />
-        <ProjectsList projectsData={projectsData} />
+    <div className="flex h-auto w-full flex-col pt-32">
+      <div className="flex h-full w-full gap-x-32">
+        <header className="mx-auto space-y-2">
+          <h1 className="text-primary text-2xl font-light tracking-wide">
+            Projects
+          </h1>
+          <p className="text-muted-foreground max-w-xl">
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Similique
+            voluptatibus commodi mollitia maxime facilis deleniti labore
+            consectetur! Quidem ratione sunt vel ipsam odio voluptatibus
+            architecto doloremque? Iusto animi saepe repudiandae!
+          </p>
+        </header>
       </div>
 
-      <ScrollBar orientation="horizontal" className="ml-4" />
-    </ScrollArea>
+      <Separator className="mx-auto mt-8 w-full max-w-xl" />
+      <ProjectsList projectsData={projectsData} />
+    </div>
   )
 }
+
+// const ProjectPage = () => {
+//   return (
+//     <ScrollArea className="mt-32 flex h-full w-full">
+//       {/* sidebar filters */}
+
+//       <div className="flex h-full w-full flex-col pb-32">
+//         <div className="flex h-full w-full gap-x-32">
+//           <header className="mx-auto space-y-2">
+//             <h1 className="text-primary text-2xl font-light tracking-wide">
+//               Projects
+//             </h1>
+//             <p className="text-muted-foreground max-w-xl">
+//               Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+//               Similique voluptatibus commodi mollitia maxime facilis deleniti
+//               labore consectetur! Quidem ratione sunt vel ipsam odio
+//               voluptatibus architecto doloremque? Iusto animi saepe repudiandae!
+//             </p>
+//           </header>
+//         </div>
+
+//         <Separator className="mx-auto mt-8 w-full max-w-xl" />
+//         <ProjectsList projectsData={projectsData} />
+//       </div>
+
+//       <ScrollBar orientation="horizontal" className="ml-4" />
+//     </ScrollArea>
+//   )
+// }
 
 export default ProjectPage

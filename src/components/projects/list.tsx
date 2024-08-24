@@ -1,6 +1,12 @@
 'use client'
 
-import React, { Fragment, useMemo, useState } from 'react'
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import {
   Card,
@@ -12,7 +18,7 @@ import {
 import { FormattedDate } from '../formatted-date'
 import { ArrowRight, FileVideo } from 'lucide-react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import clsx from 'clsx'
 import { Blocks, Check, ChevronsDownUp, Tag, Terminal } from 'lucide-react'
 
@@ -23,26 +29,92 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 
+type ProjectsData = {
+  id: string
+  title: string
+  date: string
+  description: string
+  technologies: string[]
+  tags: string[]
+  languages: string[]
+}
+
 interface Props {
-  projectsData: {
-    id: string
-    title: string
-    date: string
-    description: string
-    technologies: string[]
-    tags: string[]
-    languages: string[]
-  }[]
+  projectsData: ProjectsData[]
 }
 
 const ProjectsList = ({ projectsData }: Props) => {
   const [filters, setFilters] = useState(filtersData)
 
-  //   TODO: memoize filtered out projects according to values, debounce the function and add loading state.
-  // TODO:
+  const [displayedProjects, setDisplayedProjects] = useState(projectsData)
+
+  useEffect(() => {
+    // debounce method rather than useMemo... if instant feedback is desired, should go with memoization.
+    const timer = setTimeout(() => {
+      // Create a copy of the projects data to filter
+      let filteredProjects = [...projectsData]
+
+      // Iterate over each filter category
+      Object.values(filters).forEach((filter) => {
+        // Get the active values for the current filter category
+        const activeValues = filter.values
+          .filter((val) => val.active)
+          .map((val) => val.title)
+
+        // If there are active filters, filter the projects
+        if (activeValues.length > 0) {
+          filteredProjects = filteredProjects.filter((project) => {
+            // Check if the project matches any of the active filter values
+            if (filter.id === 'Tags') {
+              return project.tags.some((tag) => activeValues.includes(tag))
+            } else if (filter.id === 'Technologies') {
+              return project.technologies.some((tech) =>
+                activeValues.includes(tech),
+              )
+            } else if (filter.id === 'Languages') {
+              return project.languages.some((lang) =>
+                activeValues.includes(lang),
+              )
+            }
+            return false
+          })
+        }
+      })
+      // Update the displayed projects with the filtered projects
+      setDisplayedProjects(filteredProjects)
+    }, 300)
+
+    // clear timer if filters change
+    return () => clearTimeout(timer)
+  }, [filters, projectsData])
+
+  const renderListItems = (items: string[], category: FilterKey) => {
+    return (
+      <ul className="flex gap-x-2 text-sm">
+        {items.map((item, index) => {
+          const isActive = filters[category].values.some(
+            (val) => val.title === item && val.active,
+          )
+          return (
+            <li
+              key={`${item}-${index}`}
+              className={clsx(
+                'text-muted-foreground flex items-center gap-x-2 rounded-lg bg-white/5 px-2 py-1',
+                isActive && 'text-primary/90 border border-sky-300/50',
+              )}
+            >
+              {item}
+              {filters[category].icon}
+            </li>
+          )
+        })}
+      </ul>
+    )
+  }
+
   return (
-    <div className="flex gap-x-32">
-      <div className="fixed inset-y-1/3 left-24">
+    <div className="flex gap-x-32 pb-24">
+      <div className="absolute left-24">
         <h2>Filters</h2>
         <FilterMenu filterOptions={filters} setFilterOptions={setFilters} />
       </div>
@@ -77,81 +149,62 @@ const ProjectsList = ({ projectsData }: Props) => {
         </div>
 
         <section id="project-list">
-          <div className="flex flex-col gap-x-8 gap-y-16">
-            {projectsData.map((project) => {
-              return (
-                <Card
-                  key={project.id}
-                  className="w-full max-w-2xl rounded-lg border-0 bg-transparent hover:bg-white/5"
-                >
-                  <CardHeader className="space-y-4">
-                    <span className="text-muted-foreground/50 flex items-center gap-x-2 text-sm">
-                      <span className="bg-primary/90 h-1 w-1 rounded-full" />{' '}
-                      <FormattedDate
-                        date={project.date}
-                        className="self-start"
-                      />
-                    </span>
-                    <CardTitle className="leading-6 tracking-wide">
-                      {project.title}
-                    </CardTitle>
-                  </CardHeader>
+          <div className="relative flex flex-col gap-x-8 gap-y-16 transition-all duration-300">
+            <AnimatePresence>
+              {displayedProjects.map((project) => {
+                return (
+                  <motion.div
+                    key={project.id}
+                    initial={{
+                      opacity: 0,
+                    }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Card className="w-full max-w-2xl rounded-lg border-0 bg-transparent hover:bg-white/5">
+                      <CardHeader className="space-y-4">
+                        <span className="text-muted-foreground/50 flex items-center gap-x-2 text-sm">
+                          <span className="bg-primary/90 h-1 w-1 rounded-full" />{' '}
+                          <FormattedDate
+                            date={project.date}
+                            className="self-start"
+                          />
+                        </span>
+                        <CardTitle className="leading-6 tracking-wide">
+                          {project.title}
+                        </CardTitle>
+                      </CardHeader>
 
-                  <CardContent className="space-y-6">
-                    <CardDescription className="max-w-2xl">
-                      {project.description}
-                    </CardDescription>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2">
-                      {project.tags && (
-                        <ul className="flex gap-x-2 text-sm">
-                          {project.tags.map((tag, index) => (
-                            <li
-                              key={`${tag}-${index}`}
-                              className="text-muted-foreground flex items-center gap-x-2 rounded-lg bg-white/5 px-2 py-1"
-                            >
-                              {tag}
-                              {filters['Tags'].icon}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      {project.technologies && (
-                        <ul className="flex gap-x-2 text-sm">
-                          {project.technologies.map((tech, index) => (
-                            <li
-                              key={`${tech}-${index}`}
-                              className="text-muted-foreground flex items-center gap-x-2 rounded-lg bg-white/5 px-2 py-1"
-                            >
-                              {tech}
-                              {filters['Technologies'].icon}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      {project.languages && (
-                        <ul className="flex gap-x-2 text-sm">
-                          {project.languages.map((lang, index) => (
-                            <li
-                              key={`${lang}-${index}`}
-                              className="text-muted-foreground flex items-center gap-x-2 rounded-lg bg-white/5 px-2 py-1"
-                            >
-                              {lang}
-                              {filters['Languages'].icon}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                    <Link
-                      href="#"
-                      className="flex items-center gap-x-2 text-sm text-sky-300 hover:underline"
-                    >
-                      Read Article <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </CardContent>
-                </Card>
-              )
-            })}
+                      <CardContent className="space-y-6">
+                        <CardDescription className="max-w-2xl">
+                          {project.description}
+                        </CardDescription>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2">
+                          {project.tags &&
+                            renderListItems(project.tags, 'Tags')}
+
+                          {project.technologies &&
+                            renderListItems(
+                              project.technologies,
+                              'Technologies',
+                            )}
+
+                          {project.languages &&
+                            renderListItems(project.languages, 'Languages')}
+                        </div>
+                        <Link
+                          href="#"
+                          className="flex items-center gap-x-2 text-sm text-sky-300 hover:underline"
+                        >
+                          Read Article <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
           </div>
         </section>
       </main>
@@ -202,7 +255,7 @@ const filtersData: FiltersData = {
       <Terminal className="text-muted-foreground ml-auto h-4 w-4 opacity-50 group-hover/filter:text-sky-300 group-hover/filter:opacity-100" />
     ),
     values: [
-      { title: 'Typescript', active: false },
+      { title: 'TypeScript', active: false },
       { title: 'GoLang', active: false },
       { title: 'Zig', active: false },
       { title: 'Python', active: false },
@@ -216,34 +269,37 @@ type FilterMenuProps = {
 }
 
 const FilterMenu = ({ filterOptions, setFilterOptions }: FilterMenuProps) => {
-  function handleFilterChecked(
-    event: React.MouseEvent<HTMLButtonElement>,
-    optionTitle: FilterKey,
-    valueIndex: number,
-    activeValue: boolean,
-  ) {
-    event.preventDefault()
+  const handleFilterChecked = useCallback(
+    (
+      event: React.MouseEvent<HTMLButtonElement>,
+      optionTitle: FilterKey,
+      valueIndex: number,
+      activeValue: boolean,
+    ) => {
+      event.preventDefault()
 
-    const updatedValue = {
-      ...filterOptions[optionTitle].values[valueIndex],
-      active: activeValue,
-    }
+      const updatedValue = {
+        ...filterOptions[optionTitle].values[valueIndex],
+        active: activeValue,
+      }
 
-    // Copy the original array and update the specific value
-    const newValues = [...filterOptions[optionTitle].values]
-    newValues[valueIndex] = updatedValue
+      // Copy the original array and update the specific value
+      const newValues = [...filterOptions[optionTitle].values]
+      newValues[valueIndex] = updatedValue
 
-    // Update the filterOptions with the new values
-    const newFilterOptions = {
-      ...filterOptions,
-      [optionTitle]: { ...filterOptions[optionTitle], values: newValues },
-    }
+      // Update the filterOptions with the new values
+      const newFilterOptions = {
+        ...filterOptions,
+        [optionTitle]: { ...filterOptions[optionTitle], values: newValues },
+      }
 
-    setFilterOptions(newFilterOptions)
-  }
+      setFilterOptions(newFilterOptions)
+    },
+    [filterOptions, setFilterOptions],
+  )
 
   return (
-    <menu className="text-primary/90 w-[130px] space-y-3 rounded-lg border border-opacity-50 px-1 py-2 text-sm focus-within:ring-1 focus-within:ring-white/25">
+    <menu className="text-primary/90 w-[150px] space-y-3 rounded-lg border border-opacity-50 px-1 py-2 text-sm focus-within:ring-1 focus-within:ring-white/25">
       {Object.values(filterOptions).map((filter, index) => {
         return (
           <li key={index} className="w-full">

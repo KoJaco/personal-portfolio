@@ -1,6 +1,6 @@
 import { useId } from 'react'
 
-import { Intro, IntroFooter } from '@/components/projects/intro'
+import { Intro } from '@/components/projects/intro'
 import { StarField } from '@/components/star-field'
 import { ThemeToggle } from '@/components/theme-toggle'
 
@@ -69,10 +69,10 @@ function Glow() {
 
 function FixedSidebar({
   main,
-  footer,
+  // footer,
 }: {
   main: React.ReactNode
-  footer: React.ReactNode
+  // footer: React.ReactNode
 }) {
   return (
     <div className="relative flex-none overflow-hidden px-6 lg:pointer-events-none lg:fixed lg:inset-0 lg:z-40 lg:flex lg:px-0">
@@ -85,9 +85,9 @@ function FixedSidebar({
               {main}
             </div>
           </div>
-          <div className="flex flex-1 items-end justify-center pb-4 lg:justify-start lg:pb-6">
-            {footer}
-          </div>
+          <div className="flex flex-1 items-end justify-center pb-4 lg:justify-start lg:pb-6" />
+          {/* {footer}
+          </div> */}
         </div>
       </div>
     </div>
@@ -96,8 +96,8 @@ function FixedSidebar({
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <FixedSidebar main={<Intro />} footer={<IntroFooter />} />
+    <div className="h-full w-full">
+      <FixedSidebar main={<Intro />} />
       <ThemeToggle />
       <div className="relative flex-auto">
         <Timeline />
@@ -105,6 +105,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
-    </>
+    </div>
   )
 }

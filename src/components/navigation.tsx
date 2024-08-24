@@ -48,7 +48,7 @@ export const DesktopNavigation = () => {
             : 'px-2',
         isMini ? 'py-1' : isColumns ? 'pb-1 pt-3' : 'py-1',
         isColumns
-          ? 'left-24 max-w-[200px] flex-col gap-y-2 divide-y overflow-hidden rounded-lg'
+          ? 'right-24 max-w-[200px] flex-col gap-y-2 divide-y overflow-hidden rounded-lg'
           : 'mx-auto w-auto max-w-none flex-row items-center gap-x-2 divide-x rounded-[20px]',
       )}
     >
